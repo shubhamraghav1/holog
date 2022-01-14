@@ -1,0 +1,126 @@
+﻿
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SXR | Website Demo</title>
+	<meta name="description" content="Sense of Space Hologram">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<script src="../../players/v1.0.12/lib/aframe-master.min.js"></script>
+	<script src="../../players/v1.0.12/sosimports.js"></script>
+	<link rel="stylesheet" href="../../ux/v1.0.3/style.css">
+	<script>
+		function experiencePageLoaded() {
+          
+          let hologram = document.getElementById('hologram1').components.soshologram.getHologram();
+		  let vertShader = `
+								varying vec2 vUv;
+								varying vec3 vPosition;
+								void main( void ) {
+								  vUv = uv;
+								  vPosition = position;
+								  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+								}
+			`;
+			let fragmentShader = `
+								varying vec2 vUv;
+								uniform float opacity;
+								uniform sampler2D map;
+								void main(){
+									vec3 color = vec3(1.0,0.0,0.0) * opacity;
+									vec4 mapTexel = texture2D( map, vUv.xy );
+
+                                    //HERE CHANGE BRIGTHNESS AND CONTRAST
+									float brightness = 5.0;
+									float contrast = 10.0;
+									gl_FragColor = (1.0 + contrast * 0.01) * mapTexel + brightness * 0.01;
+
+								}`;
+			hologram.createCustomMaterial = function(texture) {
+				return new THREE.ShaderMaterial(
+				{
+					uniforms : {
+						map: { type: 't', value: texture },
+					},
+					vertexShader : vertShader,
+					fragmentShader : fragmentShader,
+					map	: texture,
+					defines : {
+						USE_MAP: true,
+						USE_UV: true
+					}
+				});
+			};
+
+		
+
+		};
+		initSOSAframe(experiencePageLoaded, {});
+		
+		async function changeLogo() {
+			while (true) {
+				if (document.getElementById("copyrightText") && document.getElementById("copyrightText").innerText == "Hologram by Metastage") {
+					document.getElementById("copyrightText").innerText = "";
+					let metastagelogo = document.createElement('img');
+					metastagelogo.src = "./MetastageLogo.png";
+					metastagelogo.style.width = document.documentElement.clientWidth < 800 ? '100px' : '150px'
+                  
+                    /*let libraryxlogo = document.createElement('img');
+					libraryxlogo.src = "./LibraryXLogo.png";
+					libraryxlogo.style.width = document.documentElement.clientWidth < 800 ? '80px' : '120px'
+                    libraryxlogo.style.paddingLeft = '5px' */
+                  
+					document.getElementById("copyrightText").appendChild(metastagelogo);
+                    document.getElementById("copyrightText").appendChild(document.createElement("br"));
+                    //document.getElementById("copyrightText").appendChild(libraryxlogo);
+					return ;
+				} else {
+					await new Promise( (resolve, reject) => { setTimeout(resolve, 1); });
+				}
+			}
+		}
+		
+		changeLogo();
+      
+      
+      
+	</script>
+    
+    
+      <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TWPDX4N');</script>
+<!-- End Google Tag Manager -->
+    
+  </head>
+
+  <body>
+	<a-scene background="color: #1b1926" sostracker="loadingscreen:arloading; desktopscreen:arbutton">
+	  <!-- These are needed for the AR component -->
+	  <a-camera id="dummycam" look-controls="touchEnabled:false" position="2.7 1.65 0" fov="50" rotation="-20 0 0" active="false"></a-camera>
+	  <a-camera id="orbitcam" fov="50" look-controls="enabled:false" position="0 0 0" orbit-controls="target: 0 0.7 0; initialPosition: 2.7 1.65 0" active="false"></a-camera>
+	  <a-camera id="virtualcam" look-controls="enabled:false" position="2.7 1.65 0" fov="50" rotation="-20 0 0" active="true"></a-camera>
+	  <!-- ..................................... -->
+	  
+	  <a-entity id="hologramContainer" fingerspin="" position="0 0 0">
+		  <a-entity id="hologram1" soshologram="source:sense/websitedemo" position="0 0 0" shadow="cast:true; receive:false"></a-entity>
+
+	  </a-entity>
+
+	  
+	  <!-- also an entity named main3d is needed as the anchor of the AR tracking -->
+	  <a-plane id="main3d" position="0 0 0" rotation="-90 0 0" width="2000" height="2000" color="#1b1926" shadowmaterial="" shadow=""></a-plane>
+	  <!-- ...................................................................... -->
+	</a-scene>
+    
+    
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="../../ns.html?id=GTM-TWPDX4N" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+  </body>
+</html>
+  
